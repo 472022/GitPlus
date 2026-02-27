@@ -30,14 +30,15 @@ app.use(cors({
   origin: FRONTEND_URL,
   credentials: true
 }));
+app.set("trust proxy", 1);
 app.use(session({
   secret: process.env.SESSION_SECRET || "dev-session-secret",
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production"
   }
 }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -1656,7 +1657,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = 3001;
+const PORT = Number(process.env.PORT) || 3001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
